@@ -6,9 +6,10 @@ export default function productDetail(props) {
   const { loadedProduct } = props;
 
   //check if data loading finished for fallback pages
-  if (!loadedProduct) {
-    return <p>Loading ...</p>;
-  }
+  //this is not needed if fallback set to 'blocking'
+  //if (!loadedProduct) {
+  //  return <p>Loading ...</p>;
+  //}
 
   return (
     <Fragment>
@@ -43,16 +44,21 @@ export async function getStaticPaths() {
       //not rendering p3, checking fallback
       //{ params: { product_id: "p3" } },
     ],
-    //when fallback set to false
+
+    //---when fallback set to false
     //server will only pre-rendering pages list in paths
     //other dynamic route pages will not work or have error
-    //when fallback set to true
+    //---when fallback set to true
     //server will render dynanmic route pages which not list in paths
     //when users visit them
     //Dynamic data loading takes time
     //visit pages that does not fully loaded will cause error
     //Solution: Check data loading bafore showing the page
     //see productDetail() above
-    fallback: true,
+    //---when fallback set to 'blocking'
+    //it automaticlly block page rendering if data is still loading
+    //this 'blocking' sometimes takes longer than if() checking
+    //so use true or 'blocking' based on needs
+    fallback: "blocking",
   };
 }
