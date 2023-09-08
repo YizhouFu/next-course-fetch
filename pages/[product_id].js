@@ -4,6 +4,12 @@ import path from "path";
 
 export default function productDetail(props) {
   const { loadedProduct } = props;
+
+  //check if data loading finished for fallback pages
+  if (!loadedProduct) {
+    return <p>Loading ...</p>;
+  }
+
   return (
     <Fragment>
       <h1>{loadedProduct.title}</h1>
@@ -34,8 +40,19 @@ export async function getStaticPaths() {
     paths: [
       { params: { product_id: "p1" } },
       { params: { product_id: "p2" } },
-      { params: { product_id: "p3" } },
+      //not rendering p3, checking fallback
+      //{ params: { product_id: "p3" } },
     ],
-    fallback: false,
+    //when fallback set to false
+    //server will only pre-rendering pages list in paths
+    //other dynamic route pages will not work or have error
+    //when fallback set to true
+    //server will render dynanmic route pages which not list in paths
+    //when users visit them
+    //Dynamic data loading takes time
+    //visit pages that does not fully loaded will cause error
+    //Solution: Check data loading bafore showing the page
+    //see productDetail() above
+    fallback: true,
   };
 }
