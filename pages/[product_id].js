@@ -7,9 +7,9 @@ export default function productDetail(props) {
 
   //check if data loading finished for fallback pages
   //this is not needed if fallback set to 'blocking'
-  //if (!loadedProduct) {
-  //  return <p>Loading ...</p>;
-  //}
+  if (!loadedProduct) {
+    return <p>Loading ...</p>;
+  }
 
   return (
     <Fragment>
@@ -34,6 +34,11 @@ export async function getStaticProps(context) {
   const data = await getData();
 
   const product = data.products.find((product) => product.id === productId);
+
+  //Catch non-existing product_id and redirect to 404
+  if (!product) {
+    return { notFound: true };
+  }
 
   return {
     props: {
@@ -62,10 +67,18 @@ export async function getStaticPaths() {
     //visit pages that does not fully loaded will cause error
     //Solution: Check data loading bafore showing the page
     //see productDetail() above
+
+    //!!!!!!important!!!!!!
+    //if fallback set to true, which means server will try to render pages that is not list in getStaticPaths()
+    //which means it will also try to render pages that does not exist if user gives an not exist path
+    //therefore even if we check data loading with if(), it will still cause error after trying to load not existing data
+    //Solution: Check non-existing ids and redirect to 404 using notFound: true
+    //see getStaticProps(context) above
+
     //---when fallback set to 'blocking'
     //it automaticlly block page rendering if data is still loading
     //this 'blocking' sometimes takes longer than if() checking
     //so use true or 'blocking' based on needs
-    fallback: "blocking",
+    fallback: true,
   };
 }
