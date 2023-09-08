@@ -19,13 +19,19 @@ export default function productDetail(props) {
   );
 }
 
+async function getData() {
+  const filePath = path.join(process.cwd(), "data", "dummy-backend.json");
+  const jsonData = await fs.readFile(filePath);
+  const data = JSON.parse(jsonData);
+  return data;
+}
+
 export async function getStaticProps(context) {
   //this 'params' is not a custom name
   const { params } = context;
   const productId = params.product_id;
-  const filePath = path.join(process.cwd(), "data", "dummy-backend.json");
-  const jsonData = await fs.readFile(filePath);
-  const data = JSON.parse(jsonData);
+
+  const data = await getData();
 
   const product = data.products.find((product) => product.id === productId);
 
@@ -37,13 +43,14 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
+  const data = await getData();
+  //get an array of id
+  const ids = data.products.map((product) => product.id);
+  //write ids into forms '{params: {product_id: id}}' so it can be use in paths
+  const pathParams = ids.map((id) => ({ params: { product_id: id } }));
+
   return {
-    paths: [
-      { params: { product_id: "p1" } },
-      { params: { product_id: "p2" } },
-      //not rendering p3, checking fallback
-      //{ params: { product_id: "p3" } },
-    ],
+    paths: pathParams,
 
     //---when fallback set to false
     //server will only pre-rendering pages list in paths
